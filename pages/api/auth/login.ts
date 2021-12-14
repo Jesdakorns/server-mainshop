@@ -1,9 +1,9 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import type { NextApiRequest, NextApiResponse } from 'next';
 // import { object } from 'prop-types'
 // const jwt = require('jsonwebtoken');
 // // import { JWT } from 'server.config'
 const { Validator } = require('node-input-validator');
-// const db = require('@database');
+const db = require('@database');
 // import { query } from '@database';
 const bcrypt = require('bcrypt');
 // const saltRounds = 10;
@@ -44,33 +44,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return;
         }
 
-        // let resUser = await db.query(
-        //     'select id,username,email from users where username = ? or email = ? limit 1',
-        //     [v.inputs.username, v.inputs.username]
-        // )
+        let resUser = await db.query(
+            'select id,username,email from users where username = ? or email = ? limit 1',
+            [v.inputs.username, v.inputs.username]
+        )
 
-        // let resPassword = await db.query(
-        //     'select * from password where user_id = ? limit 1',
-        //     [resUser[0].id]
-        // )
+        let resPassword = await db.query(
+            'select * from password where user_id = ? limit 1',
+            [resUser[0].id]
+        )
 
-        // console.log(`resPassword[0].password`, resPassword[0].password)
-        // console.log(`v.inputs.password`, v.inputs.password)
-        // let isAuth = await bcrypt.compare(v.inputs.password, resPassword[0].password);
-        // console.log(`isAuth`, isAuth)
+        console.log(`resPassword[0].password`, resPassword[0].password)
+        console.log(`v.inputs.password`, v.inputs.password)
+        let isAuth = await bcrypt.compare(v.inputs.password, resPassword[0].password);
+        console.log(`isAuth`, isAuth)
 
 
-        const saltRounds = 10;
-        const myPlaintextPassword = 's0/\/\P4$$w0rD';
-        const someOtherPlaintextPassword = 'not_bacon';
+        // const saltRounds = 10;
+        // const myPlaintextPassword = 's0/\/\P4$$w0rD';
+        // const someOtherPlaintextPassword = 'not_bacon';
 
-        const salt = bcrypt.genSaltSync(saltRounds);
-        const hash = bcrypt.hashSync(myPlaintextPassword, salt);
+        // const salt = bcrypt.genSaltSync(saltRounds);
+        // const hash = bcrypt.hashSync(myPlaintextPassword, salt);
 
-        let d = bcrypt.compareSync(myPlaintextPassword, hash); // true
-        let s = bcrypt.compareSync(someOtherPlaintextPassword, hash); // false
-            console.log(`d`, d)
-            console.log(`s`, s)
+        // let d = bcrypt.compareSync(myPlaintextPassword, hash); // true
+        // let s = bcrypt.compareSync(someOtherPlaintextPassword, hash); // false
+            // console.log(`d`, d)
+            // console.log(`s`, s)
         // if (!isAuth) {
 
         // }
@@ -79,8 +79,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 error: false,
                 message: ''
             },
-            d,
-            s,
+         
             timestamp: Math.floor(Date.now() / 1000)
         }
         res.status(200).json(__res)
