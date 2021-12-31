@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 // import { object } from 'prop-types'
-// const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 // // import { JWT } from 'server.config'
 const { Validator } = require('node-input-validator');
 const db = require('@database');
@@ -22,7 +22,9 @@ type Data = {
     timestamp: number
 
 }
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+const post = async (req: NextApiRequest, res: NextApiResponse) => {
+
     let __res = {}
     try {
         const v = await new Validator(req.body, {
@@ -45,7 +47,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         let resUser = await db.query(
-            'select id,username,email from users where username = ? or email = ? limit 1',
+            'select id,username,email,firstname,lastname from users where username = ? or email = ? limit 1',
             [v.inputs.username, v.inputs.username]
         )
 
@@ -54,32 +56,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             [resUser[0].id]
         )
 
-        console.log(`resPassword[0].password`, resPassword[0].password)
-        console.log(`v.inputs.password`, v.inputs.password)
         let isAuth = await bcrypt.compare(v.inputs.password, resPassword[0].password);
-        console.log(`isAuth`, isAuth)
+        if (!isAuth) {
+            let __res = {
+                status: {
+                    error: true,
+                    message: 'The username/email or password is incorrect.'
+                },
+                timestamp: Math.floor(Date.now() / 1000)
+            }
+            res.status(400).json(__res)
+            return;
+        }
 
+        let dataJwt = {
+            id: resUser[0].id,
+            username: resUser[0].username,
+            firstname: resUser[0].firstname,
+            lastname: resUser[0].lastname,
+            fullname: `${resUser[0].firstname} ${resUser[0].lastname}`,
+            email: resUser[0].email
+        }
+        var token = jwt.sign(dataJwt, process.env.NEXT_PUBLIC_JWT_KEY, { expiresIn: process.env.NEXT_PUBLIC_JWT_EXP });
 
-        // const saltRounds = 10;
-        // const myPlaintextPassword = 's0/\/\P4$$w0rD';
-        // const someOtherPlaintextPassword = 'not_bacon';
-
-        // const salt = bcrypt.genSaltSync(saltRounds);
-        // const hash = bcrypt.hashSync(myPlaintextPassword, salt);
-
-        // let d = bcrypt.compareSync(myPlaintextPassword, hash); // true
-        // let s = bcrypt.compareSync(someOtherPlaintextPassword, hash); // false
-            // console.log(`d`, d)
-            // console.log(`s`, s)
-        // if (!isAuth) {
-
-        // }
         __res = {
             status: {
                 error: false,
                 message: ''
             },
-         
+            token,
             timestamp: Math.floor(Date.now() / 1000)
         }
         res.status(200).json(__res)
@@ -93,5 +98,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
         res.status(500).json(__res)
     }
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+    switch (req.method) {
+        case 'POST':
+            post(req, res)
+            break
+        default:
+            res.status(405).end() //Method Not Allowed
+            break
+    }
 
 }
+
+
