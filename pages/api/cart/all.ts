@@ -13,6 +13,7 @@ type Data = {
 }
 
 const get = async (req: NextApiRequest, res: NextApiResponse) => {
+
     let __res = {}
     try {
         const auth = new middleware(req, res);
@@ -44,7 +45,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
                 join product_type as pty on p.type_id = pty.id
                 join product_stock as ps on ps.product_id = p.id
                 join province as pv on pv.id = p.address
-                where c.user_id = ? and c.pay = "0" and c.remove = "0"`
+                where c.user_id = ? and c.pay = "false" and c.remove = "false"`
         let getCartAll = await db.query(
             textSelectSqlCart,
             [user.id]

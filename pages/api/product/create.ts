@@ -36,11 +36,10 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         let stock_quantity = req.body.stock_quantity || ''
         let address = req.body.address || ''
 
-
         let textSqlProducts = `insert into products (title, price, type_id, address, user_id, description, remove , created_at, updated_at) values (?,?,?,?,?,?,?,?,?)`
         let insertProducts = await db.query(
             textSqlProducts,
-            [title, price, type, address, user.id, description, "0", timestamp, timestamp]
+            [title, price, type, address, user.id, description, "false", timestamp, timestamp]
         )
         console.log(`insertProducts.insertId`, typeof insertProducts.insertId)
         id_product = insertProducts.insertId

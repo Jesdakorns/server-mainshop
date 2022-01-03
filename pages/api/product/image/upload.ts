@@ -29,7 +29,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         const auth = new middleware(req, res);
         if (auth.middleware()) { return }
         
-        let fileImage = await uploadFile(req, `public/image`, ["jpg", "jpeg", "png", "pdf"])
+        let fileImage = await uploadFile(req, `image`, ["jpg", "jpeg", "png", "pdf"])
 
      
         __res = {

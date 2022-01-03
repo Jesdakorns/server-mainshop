@@ -17,12 +17,12 @@ export const uploadFile = async (req: any, pathDir: string, valid: string[]) => 
 
     const data = await new Promise((resolve, rejects) => {
 
-        fs.mkdir(pathDir, { recursive: true }, (err) => {
+        fs.mkdir(`public/${pathDir}`, { recursive: true }, (err) => {
             return console.log(`err`, err)
         })
         const form = formidable({
             multiples: true,
-            uploadDir: pathDir
+            uploadDir: `public/${pathDir}`
         })
         console.log(`form`, form)
         form.keepExtensions = true
@@ -32,10 +32,16 @@ export const uploadFile = async (req: any, pathDir: string, valid: string[]) => 
             if (!isValid) {
                 file.path = null
             } else {
+                let pathC = []
                 let type = file.type.split("/").pop();
-                file.path = path.join(pathDir, slugify(`${Date.now()}-${uuidv4()}.${type}`))
+                file.path = path.join(`public/${pathDir}`, slugify(`${Date.now()}-${uuidv4()}.${type}`))
+                file.name = slugify(`${Date.now()}-${uuidv4()}.${type}`)
             }
         })
+        form.on('file', (name: any, file: any) => {
+            file.path = file.path.substring(7);
+            file.path = file.path.replace("\\", "/")
+        });
         form.parse(req, (err: any, fields: any, files: any) => {
             if (err) { console.log(`err`, err); return rejects(err); }
             resolve(files)

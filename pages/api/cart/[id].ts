@@ -106,7 +106,7 @@ const Delete = async (req: NextApiRequest, res: NextApiResponse) => {
         let textSqlProducts = `update cart as c set remove = ?  where c.user_id = ? and c.product_id = ? and c.remove = ? and c.pay = ?`
         let deleteProducts = await db.query(
             textSqlProducts,
-            ["1", user.id, queryProductId,"0","0"]
+            ["true", user.id, queryProductId,"false","false"]
         )
 
         if(deleteProducts.changedRows == 0){

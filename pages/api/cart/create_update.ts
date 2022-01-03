@@ -29,7 +29,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         let textGetSqlCart = `select * from cart where product_id = ? and user_id = ? and pay = ?`
         let getCart = await db.query(
             textGetSqlCart,
-            [product_id, user.id, '0']
+            [product_id, user.id, 'false']
         )
         console.log(`getCart.length == 0`, getCart.length)
         let isInsert = false
@@ -39,7 +39,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
 
             let insertCart = await db.query(
                 textSqlCart,
-                [product_id, user.id, quantity, '0', '0', timestamp, timestamp]
+                [product_id, user.id, quantity, 'false', 'false', timestamp, timestamp]
             )
             console.log(`insertCart`, insertCart)
             if (insertCart.insertId > 0) {
@@ -47,7 +47,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
             }
         } else {
 
-            let textSqlCart = `update cart set quantity = ?, updated_at = ? where product_id = ? and user_id = ? and pay = "0"`
+            let textSqlCart = `update cart set quantity = ?, updated_at = ? where product_id = ? and user_id = ? and pay = "false"`
 
             let updateCart = await db.query(
                 textSqlCart,
@@ -84,7 +84,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
                 join product_type as pty on p.type_id = pty.id
                 join product_stock as ps on ps.product_id = p.id
                 join province as pv on pv.id = p.address
-                where c.user_id = ? and p.id = ? and c.pay = "0" and c.remove = "0" limit 1`
+                where c.user_id = ? and p.id = ? and c.pay = "false" and c.remove = "false" limit 1`
             getCartAll = await db.query(
                 textSelectSqlCart,
                 [user.id, product_id]

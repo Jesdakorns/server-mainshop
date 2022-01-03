@@ -48,7 +48,7 @@ const Get = async (req: NextApiRequest, res: NextApiResponse) => {
         join product_type as pty on p.type_id = pty.id
         join product_stock as ps on ps.product_id = p.id
         join province as pv on pv.id = p.address
-        where p.id = ? and p.remove = "0"`
+        where p.id = ? and p.remove = "false"`
         let getProducts = await db.query(
             textSqlProducts,
             [queryProductId]
@@ -220,7 +220,7 @@ const Patch = async (req: NextApiRequest, res: NextApiResponse) => {
             join product_stock as ps 
             join product_cover_image as pci
             set ${sqlText} 
-            where p.id = ? and ps.product_id = ? and pci.product_id = ? and p.remove = "0"`
+            where p.id = ? and ps.product_id = ? and pci.product_id = ? and p.remove = "false"`
         console.log(`textSqlProducts`, textSqlProducts)
         let updateProducts = await db.query(
             textSqlProducts,
@@ -248,7 +248,7 @@ const Patch = async (req: NextApiRequest, res: NextApiResponse) => {
             join product_type as pty on p.type_id = pty.id
             join product_stock as ps on ps.product_id = p.id
             join province as pv on pv.id = p.address
-            where p.id = ? and p.remove = "0" `
+            where p.id = ? and p.remove = "false" `
             let getProducts = await db.query(
                 textSqlProducts,
                 [queryProductId]
@@ -333,7 +333,7 @@ const Delete = async (req: NextApiRequest, res: NextApiResponse) => {
         //     [queryProductId]
         // )
         // let textSqlProducts = `delete from products where id = ?`
-        let textSqlProducts = `update products as p set remove = "1"  where p.id = ? and p.remove = "0"`
+        let textSqlProducts = `update products as p set remove = "true"  where p.id = ? and p.remove = "false"`
         let deleteProducts = await db.query(
             textSqlProducts,
             [queryProductId]
