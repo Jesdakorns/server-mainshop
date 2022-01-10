@@ -1,7 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import middleware from '@middleware'
 const db = require('@database');
-
+import { runMiddleware } from '@lib/cors'
+const cors = {
+    methods: ['GET'],
+}
 type Data = {
     status: {
         success: boolean,
@@ -73,6 +76,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await runMiddleware(req, res, cors)
     switch (req.method) {
         case 'GET':
             get(req, res)

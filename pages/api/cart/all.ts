@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import middleware from '@middleware'
 const db = require('@database');
+import { runMiddleware } from '@lib/cors'
 
 type Data = {
     status: {
@@ -11,9 +12,11 @@ type Data = {
     timestamp: number
 
 }
-
+const cors = {
+    origins: "http://localhost:3000",
+    methods: ['GET']
+}
 const get = async (req: NextApiRequest, res: NextApiResponse) => {
-
     let __res = {}
     try {
         const auth = new middleware(req, res);
@@ -50,14 +53,14 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
             textSelectSqlCart,
             [user.id]
         )
-   
+
 
         __res = {
             status: {
                 error: false,
                 message: ''
             },
-            getCartAll,
+            cart: getCartAll,
             timestamp: Math.floor(Date.now() / 1000)
         }
         res.status(200).json(__res)
@@ -75,6 +78,8 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await runMiddleware(req, res, cors)
+    console.log(`req.method`, req.method)
     switch (req.method) {
         case 'GET':
             get(req, res)

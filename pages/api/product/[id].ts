@@ -3,7 +3,7 @@ import middleware from '@middleware'
 import dateFormat from 'dateformat';
 import { JSONParser } from 'formidable/parsers';
 const db = require('@database');
-
+import { runMiddleware } from '@lib/cors'
 
 type Data = {
     status: {
@@ -14,13 +14,15 @@ type Data = {
     timestamp: number
 
 }
-
+const cors = {
+    methods: ['GET','PATCH','DELETE'],
+}
 
 const Get = async (req: NextApiRequest, res: NextApiResponse) => {
     let timestamp = dateFormat(new Date(), "yyyy-mm-dd, h:MM:ss");
     let __res = {}
     let id_product = 0
-
+  
     try {
         let queryProductId = req.query.id
         // const auth = new middleware(req, res);
@@ -365,6 +367,7 @@ const Delete = async (req: NextApiRequest, res: NextApiResponse) => {
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await runMiddleware(req, res, cors)
     switch (req.method) {
         case 'GET':
             Get(req, res)

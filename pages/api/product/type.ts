@@ -17,7 +17,7 @@ const cors = {
 }
 const get = async (req: NextApiRequest, res: NextApiResponse) => {
     let __res = {}
-    await runMiddleware(req, res, cors)
+
     // try {
     let textTypeProduct = `
     select 
@@ -66,6 +66,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await runMiddleware(req, res, cors)
     switch (req.method) {
         case 'GET':
             get(req, res)

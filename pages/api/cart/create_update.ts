@@ -3,6 +3,7 @@ import middleware from '@middleware'
 import dateFormat from 'dateformat';
 import { JSONParser } from 'formidable/parsers';
 const db = require('@database');
+import { runMiddleware } from '@lib/cors'
 
 let timestamp = dateFormat(new Date(), "yyyy-mm-dd, h:MM:ss");
 type Data = {
@@ -14,10 +15,13 @@ type Data = {
     timestamp: number
 
 }
-
+const cors = {
+    methods: ['POST'],
+}
 const post = async (req: NextApiRequest, res: NextApiResponse) => {
     let timestamp = dateFormat(new Date(), "yyyy-mm-dd, h:MM:ss");
     let __res = {}
+
     try {
         const auth = new middleware(req, res);
         if (auth.middleware()) { return }
@@ -98,6 +102,21 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
             getCartAll[0].product_cover_image = getPCI[0]
         }
 
+        let textSelectSqlCart = `
+        select 
+          count(*) as count
+        from cart as c
+        join products as p on c.product_id = p.id
+        join product_cover_image as pci on pci.product_id = p.id
+        join product_type as pty on p.type_id = pty.id
+        join product_stock as ps on ps.product_id = p.id
+        join province as pv on pv.id = p.address
+        where c.user_id = ? and c.pay = "false" and c.remove = "false"`
+        let getCartCount = await db.query(
+            textSelectSqlCart,
+            [user.id]
+        )
+
 
         __res = {
             status: {
@@ -105,6 +124,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
                 message: ''
             },
             cart: getCartAll,
+            count: getCartCount[0].count,
             timestamp: Math.floor(Date.now() / 1000)
         }
         res.status(200).json(__res)
@@ -122,6 +142,7 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await runMiddleware(req, res, cors)
     switch (req.method) {
         case 'POST':
             post(req, res)
