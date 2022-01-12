@@ -13,16 +13,16 @@ const isFileValid = (file: any, valid: any) => {
     return true;
 };
 
-export const uploadFile = async (req: any, pathDir: string, valid: string[]) => {
+export const uploadFile = async (req: any, valid: string[]) => {
 
     const data = await new Promise((resolve, rejects) => {
 
-        fs.mkdir(`public/${pathDir}`, { recursive: true }, (err) => {
+        fs.mkdir(`public/`, { recursive: true }, (err) => {
             return console.log(`err`, err)
         })
         const form = formidable({
             multiples: true,
-            uploadDir: `public/${pathDir}`
+            uploadDir: `public/`
         })
         console.log(`form`, form)
         form.keepExtensions = true
@@ -33,9 +33,25 @@ export const uploadFile = async (req: any, pathDir: string, valid: string[]) => 
                 file.path = null
             } else {
                 let pathC = []
+                let typeFolder = file.type.split("/")[0]
                 let type = file.type.split("/").pop();
-                file.path = path.join(`public/${pathDir}`, slugify(`${Date.now()}-${uuidv4()}.${type}`))
-                file.name = slugify(`${Date.now()}-${uuidv4()}.${type}`)
+                if (typeFolder == 'image') {
+                    let pathDir = "images"
+                    file.path = path.join(`public/${pathDir}`, slugify(`${Date.now()}-${uuidv4()}.${type}`))
+                    file.name = slugify(`${Date.now()}-${uuidv4()}.${type}`)
+
+                } else if (typeFolder == 'video') {
+                    let pathDir = "video"
+                    file.path = path.join(`public/${pathDir}`, slugify(`${Date.now()}-${uuidv4()}.${type}`))
+                    file.name = slugify(`${Date.now()}-${uuidv4()}.${type}`)
+
+
+                } else if (typeFolder == 'application') {
+
+                    let pathDir = "docs"
+                    file.path = path.join(`public/${pathDir}`, slugify(`${Date.now()}-${uuidv4()}.${type}`))
+                    file.name = slugify(`${Date.now()}-${uuidv4()}.${type}`)
+                }
             }
         })
         form.on('file', (name: any, file: any) => {
