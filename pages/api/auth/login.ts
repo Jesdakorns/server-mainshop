@@ -73,11 +73,11 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
 
         let dataJwt = {
             id: resUser[0].id,
-            username: resUser[0].username,
-            firstname: resUser[0].firstname,
-            lastname: resUser[0].lastname,
-            fullname: `${resUser[0].firstname} ${resUser[0].lastname}`,
-            email: resUser[0].email
+            // username: resUser[0].username,
+            // firstname: resUser[0].firstname,
+            // lastname: resUser[0].lastname,
+            // fullname: `${resUser[0].firstname} ${resUser[0].lastname}`,
+            // email: resUser[0].email
         }
         var token = jwt.sign(dataJwt, process.env.NEXT_PUBLIC_JWT_KEY, { expiresIn: process.env.NEXT_PUBLIC_JWT_EXP });
 

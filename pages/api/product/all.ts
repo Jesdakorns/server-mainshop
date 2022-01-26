@@ -13,12 +13,12 @@ type Data = {
 
 }
 const cors = {
-   
+
     methods: ['GET'],
 }
 const get = async (req: NextApiRequest, res: NextApiResponse) => {
     let __res = {}
-   
+
     try {
 
         let category = req.query.category || ""
@@ -75,6 +75,17 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 
         let last_page = Math.ceil(rowProduct[0].rows / per_page)
         console.log(`page`, typeof last_page, last_page)
+        // let textSqlReviewAll = `
+        // select 
+        //    sum(pr.rating) as product_review_rating_all
+        //  from product_review as pr 
+        //  join users as u on u.id = pr.user_id 
+        //  where pr.product_id = ? and pr.remove = "false"`
+        // let getReviewAll = await db.query(
+        //     textSqlReviewAll,
+        //     [queryProductId]
+        // )
+
 
 
         let textSqlProducts = `
@@ -93,6 +104,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
             pty.title_th as product_type_th,
             pci.type as product_cover_image_type,
             pci.url as product_cover_image_url,
+            pr.pr_sum_rating as product_review_rating,
             p.created_at as product_created_at, 
             p.updated_at as product_updated_at
         from products as p 
@@ -100,9 +112,13 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
         join product_stock as ps on ps.product_id = p.id
         join product_cover_image as pci on pci.product_id = p.id
         join province as pv on pv.id = p.address
+        join (SELECT product_review.product_id as pr_product_id,  sum(product_review.rating) / count(*) as pr_sum_rating
+            FROM product_review
+            GROUP BY product_review.product_id) pr ON pr.pr_product_id = p.id
         where p.remove = "false" 
         ${sqlKeyword}${sqlCategory}${sqlPrice}${sqlSortBy}
 
+        
         limit ${offset},${per_page}`
         console.log(`textSqlProducts`, textSqlProducts)
         let getProducts = await db.query(
