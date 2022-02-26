@@ -15,14 +15,14 @@ type Data = {
 
 }
 const cors = {
-    methods: ['GET','PATCH','DELETE'],
+    methods: ['GET', 'PATCH', 'DELETE'],
 }
 
 const Get = async (req: NextApiRequest, res: NextApiResponse) => {
     let timestamp = dateFormat(new Date(), "yyyy-mm-dd, h:MM:ss");
     let __res = {}
     let id_product = 0
-  
+
     try {
         let queryProductId = req.query.id
         // const auth = new middleware(req, res);
@@ -67,11 +67,27 @@ const Get = async (req: NextApiRequest, res: NextApiResponse) => {
             textSqlPCI,
             [queryProductId]
         )
-
+        let textSqlPD = `
+        select 
+            pd.product_id ,
+            pd.delivery_id ,
+            delivery.title_en,
+            delivery.title_th,
+            pd.price,
+            pd.created_at,
+            pd.updated_at 
+        from product_delivery as pd 
+        join delivery on delivery.id = pd.delivery_id 
+        where pd.product_id = ?`
+        let getPD = await db.query(
+            textSqlPD,
+            [queryProductId]
+        )
         if (getProducts.length > 0) {
 
             getProducts[0].product_cover_image = getPCI[0]
             getProducts[0].product_image = getPI
+            getProducts[0].product_delivery = getPD
         } else {
             let __res = {
                 status: {
@@ -267,10 +283,27 @@ const Patch = async (req: NextApiRequest, res: NextApiResponse) => {
                 textSqlPCI,
                 [queryProductId]
             )
+            let textSqlPD = `
+            select 
+                pd.product_id ,
+                pd.delivery_id ,
+                delivery.title_en,
+                delivery.title_th,
+                pd.price,
+                pd.created_at,
+                pd.updated_at 
+            from product_delivery as pd 
+            join delivery on delivery.id = pd.delivery_id 
+            where pd.product_id = ?`
+            let getPD = await db.query(
+                textSqlPD,
+                [queryProductId]
+            )
 
 
             getProducts[0].product_cover_image = getPCI[0]
             getProducts[0].product_image = getPI
+            getProducts[0].product_delivery = getPD
             __res = {
                 status: {
                     error: false,

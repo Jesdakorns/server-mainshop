@@ -89,32 +89,32 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
 
 
         let textSqlProducts = `
-        select 
+        select
             p.id as product_id ,
             p.title as product_title,
             p.price as product_price,
             ps.stock_quantity as product_stock_quantity,
             ps.sales_amount as product_sales_amount,
-            pv.id as product_province_id , 
-            pv.title_en as product_province_title_en , 
-            pv.title_th as product_province_title_th , 
-            p.description as product_description, 
+            pv.id as product_province_id ,
+            pv.title_en as product_province_title_en ,
+            pv.title_th as product_province_title_th ,
+            p.description as product_description,
             pty.id as product_type_id,
             pty.title_en as product_type_en,
             pty.title_th as product_type_th,
             pci.type as product_cover_image_type,
             pci.url as product_cover_image_url,
             pr.pr_sum_rating as product_review_rating,
-            p.created_at as product_created_at, 
+            p.created_at as product_created_at,
             p.updated_at as product_updated_at
-        from products as p 
+        from products as p
         join product_type as pty on p.type_id = pty.id
         join product_stock as ps on ps.product_id = p.id
         join product_cover_image as pci on pci.product_id = p.id
         join province as pv on pv.id = p.address
-        join (SELECT product_review.product_id as pr_product_id,  sum(product_review.rating) / count(*) as pr_sum_rating
-            FROM product_review
-            GROUP BY product_review.product_id) pr ON pr.pr_product_id = p.id
+        left join (SELECT product_review.product_id as pr_product_id,  sum(product_review.rating) / count(*) as pr_sum_rating
+            from product_review
+            group by product_review.product_id) pr ON pr.pr_product_id = p.id
         where p.remove = "false" 
         ${sqlKeyword}${sqlCategory}${sqlPrice}${sqlSortBy}
 

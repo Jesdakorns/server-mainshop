@@ -35,6 +35,10 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         let productImage = req.body.product_image || []
         let stock_quantity = req.body.stock_quantity || ''
         let address = req.body.address || ''
+        let delivery = req.body.delivery || []
+
+
+
 
         let textSqlProducts = `insert into products (title, price, type_id, address, user_id, description, remove , created_at, updated_at) values (?,?,?,?,?,?,?,?,?)`
         let insertProducts = await db.query(
@@ -44,8 +48,18 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         console.log(`insertProducts.insertId`, typeof insertProducts.insertId)
         id_product = insertProducts.insertId
 
-
         if (id_product > 0) {
+            delivery.map(async (val: any, idx: number) => {
+                let _val_delivery = JSON.parse(val)
+       
+
+                let textSqlPD = `insert into product_delivery (product_id, delivery_id, price,remove, created_at, updated_at) values (?,?,?,?,?,?)`
+                let insertPD = await db.query(
+                    textSqlPD,
+                    [id_product, _val_delivery.fk, _val_delivery.price, "false", timestamp, timestamp]
+                )
+            })
+
 
             let textSqlPCI = `insert into product_cover_image (type, url, size, product_id, created_at, updated_at) values (?,?,?,?,?,?)`
             let insertPCI = await db.query(
@@ -55,11 +69,14 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
 
             productImage.map(async (val: any, idx: number) => {
                 let _val = JSON.parse(val)
-                let textSqlPI = `insert into product_images (type, url, size, product_id, created_at, updated_at) values (?,?,?,?,?,?)`
-                let insertPI = await db.query(
-                    textSqlPI,
-                    [_val.type, _val.path, _val.size, id_product, timestamp, timestamp]
-                )
+                if (_val) {
+
+                    let textSqlPI = `insert into product_images (type, url, size, product_id, created_at, updated_at) values (?,?,?,?,?,?)`
+                    let insertPI = await db.query(
+                        textSqlPI,
+                        [_val.type, _val.path, _val.size, id_product, timestamp, timestamp]
+                    )
+                }
             })
 
             let textSqlPS = `insert into product_stock (stock_quantity, sales_amount, product_id, created_at, updated_at) values (?,?,?,?,?)`
@@ -141,6 +158,11 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
             let textSqlProducts = `delete from products where id = ?`
             let deleteProducts = await db.query(
                 textSqlProducts,
+                [id_product]
+            )
+            let textSqlDelivery = `delete from product_delivery where product_id = ?`
+            let deleteDelivery = await db.query(
+                textSqlDelivery,
                 [id_product]
             )
         }

@@ -24,6 +24,7 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
         pty.id as product_type_id,
         pty.title_en as product_type_title_en,
         pty.title_th as product_type_title_th,
+         pty.image as product_type_image,
         pty.remove as product_type_remove
     from product_type as pty
     where pty.remove = "false"`
