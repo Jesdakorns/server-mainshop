@@ -23,6 +23,21 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
         if (auth.middleware()) { return }
         let user = auth.user()
 
+        let textSelectSqlDelivery = `
+        select 
+            c.product_id,
+            delivery.title_en,
+            delivery.title_th,
+            pd.price
+        from cart as c
+        join product_delivery as pd on pd.product_id = c.product_id 
+        join delivery on delivery.id = pd.delivery_id 
+        where c.user_id = ? and c.pay = "false" and c.remove = "false"`
+        let getDeliveryAll = await db.query(
+            textSelectSqlDelivery,
+            [user.id]
+        )
+
         let textSelectSqlCart = `
                 select 
                     p.id as product_id ,
@@ -53,7 +68,16 @@ const get = async (req: NextApiRequest, res: NextApiResponse) => {
             textSelectSqlCart,
             [user.id]
         )
+        getCartAll.map((v: any, idx: number) => {
+            let product_id = v.product_id
+            getCartAll[idx].product_delivery = []
+            getDeliveryAll.map((vD: any, idxD: number) => {
+                if (product_id == vD.product_id) {
+                    getCartAll[idx].product_delivery.push(vD)
+                }
+            })
 
+        })
 
         __res = {
             status: {

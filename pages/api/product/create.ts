@@ -51,12 +51,12 @@ const post = async (req: NextApiRequest, res: NextApiResponse) => {
         if (id_product > 0) {
             delivery.map(async (val: any, idx: number) => {
                 let _val_delivery = JSON.parse(val)
-       
+
 
                 let textSqlPD = `insert into product_delivery (product_id, delivery_id, price,remove, created_at, updated_at) values (?,?,?,?,?,?)`
                 let insertPD = await db.query(
                     textSqlPD,
-                    [id_product, _val_delivery.fk, _val_delivery.price, "false", timestamp, timestamp]
+                    [id_product, _val_delivery.fk, _val_delivery.fk == 1 ? 0 : _val_delivery.price, "false", timestamp, timestamp]
                 )
             })
 
